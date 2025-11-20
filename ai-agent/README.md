@@ -20,6 +20,9 @@ app/
 │   └── schemas.py         # Request/response models
 ├── services/              # External service clients
 │   └── groq_client.py     # Groq API client
+├── prompts/
+│   └── Main.prompt.yaml     # Main prompt file to use in loop
+│   └── Describe.prompt.yaml # Describer for the image features
 └── main.py                # Application entry point
 ```
 
