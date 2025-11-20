@@ -20,6 +20,9 @@ class Settings(BaseSettings):
 
     # API
     api_v1_prefix: str = Field(default="/api/v1", description="API v1 prefix")
+    api_token: str | None = Field(
+        default=None, description="API token for securing endpoints (Bearer token)"
+    )
 
     # Groq API
     groq_api_key: str = Field(..., description="Groq API key")

@@ -1,9 +1,9 @@
 """Groq API endpoints."""
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 
 from app.controllers.groq_controller import GroqController
-from app.core.dependencies import get_groq_client
+from app.core.dependencies import get_groq_client, verify_api_token
 from app.models.schemas import ChatCompletionRequest, ChatCompletionResponse, ChatMessage
 from app.services.groq_client import GroqClient
 
@@ -21,6 +21,7 @@ def get_groq_controller(
     "/chat/completions",
     summary="Chat completion",
     response_model=ChatCompletionResponse,
+    dependencies=[Depends(verify_api_token)],
 )
 async def chat_completion(
     request: ChatCompletionRequest,
@@ -39,7 +40,11 @@ async def chat_completion(
     return await controller.chat_completion(request)
 
 
-@router.get("/test", summary="Test Groq connection")
+@router.get(
+    "/test",
+    summary="Test Groq connection",
+    dependencies=[Depends(verify_api_token)],
+)
 async def test_groq(
     controller: GroqController = Depends(get_groq_controller),
 ) -> dict[str, str]:
