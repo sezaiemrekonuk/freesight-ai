@@ -253,10 +253,10 @@ class GroqClient:
 
         if isinstance(prompt, Enum):
             prompt_name = prompt.value
-        elif hasattr(prompt, "__str__"):
-            prompt_name = str(prompt)
-        else:
+        elif isinstance(prompt, str):
             prompt_name = prompt
+        else:
+            raise TypeError(f"prompt must be a str or Enum, got {type(prompt).__name__}")
 
         # Get prompt manager and render prompt
         prompt_manager = get_prompt_manager()

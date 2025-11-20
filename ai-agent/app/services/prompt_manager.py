@@ -66,10 +66,6 @@ class PromptManager:
         with open(prompt_file, "r", encoding="utf-8") as f:
             data = yaml.safe_load(f)
 
-        # Handle typo in YAML files (provoder -> provider)
-        if "provoder" in data:
-            data["provider"] = data.pop("provoder")
-
         # Parse messages
         messages = []
         for msg_data in data.get("messages", []):

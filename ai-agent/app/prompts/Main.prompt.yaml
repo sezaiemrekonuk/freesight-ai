@@ -38,7 +38,8 @@ messages:
         Keep responses short, direct, and safety-first.
       </ResponseStyle>
   - role: user
-
+    content: |
+      "Give a navigation and safety summary for the user."
 variables:
   - objectsInImage
   - isPanic

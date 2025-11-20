@@ -1,5 +1,5 @@
 model: "llama-3.1-8b-instant"
-provoder: "groq"
+provider: "groq"
 
 messages:
   - role: system
@@ -33,6 +33,8 @@ messages:
         “Fast motorcycle very close. Person near. Panic=true.”
       </OutputFormat>
   - role: user
+    content: |
+      "Describe the objects in the image."
 
 variables:
   - objectsInImage
