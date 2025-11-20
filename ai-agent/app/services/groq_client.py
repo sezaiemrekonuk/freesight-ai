@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-import os
 from typing import AsyncIterator, Literal, Sequence
 
 import httpx
@@ -86,9 +85,9 @@ class GroqClient:
         client: httpx.AsyncClient | None = None,
     ) -> None:
         self._base_url = (base_url or self.DEFAULT_BASE_URL).rstrip("/")
-        self._api_key = api_key or os.getenv("GROQ_API_KEY")
+        self._api_key = api_key
         if not self._api_key:
-            raise GroqClientError("Missing Groq API key. Set `GROQ_API_KEY` or pass `api_key`.")
+            raise GroqClientError("Missing Groq API key. Pass `api_key` parameter.")
 
         self._client = client or httpx.AsyncClient(
             base_url=self._base_url,

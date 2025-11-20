@@ -1,54 +1,44 @@
-from pathlib import Path
+"""FastAPI application entry point."""
 
-from fastapi import FastAPI, HTTPException
-from dotenv import load_dotenv
+from contextlib import asynccontextmanager
 
-from app.services.groq_client import GroqClient, GroqClientError, GroqMessage
+from fastapi import FastAPI
 
-load_dotenv(dotenv_path=Path(__file__).resolve().parents[1] / ".env", override=False)
+from app.api.v1 import api_router
+from app.core.config import settings
 
-groq_client = GroqClient()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan manager for startup and shutdown events."""
+    # Startup
+    yield
+    # Shutdown
+    from app.core.dependencies import get_groq_client
+
+    groq_client = get_groq_client()
+    await groq_client.aclose()
 
 
 def create_app() -> FastAPI:
-    """Create and configure the FastAPI application instance."""
+    """
+    Create and configure the FastAPI application instance.
+
+    Returns:
+        Configured FastAPI application
+    """
     app = FastAPI(
-        title="AI Agent API",
-        version="0.1.0",
+        title=settings.app_name,
+        version=settings.app_version,
         summary="Core API for the AI Agent service.",
+        debug=settings.debug,
+        lifespan=lifespan,
     )
 
-    @app.get("/", tags=["system"])
-    async def root():
-        return {"message": "AI Agent API is running"}
+    # Include API routers
+    app.include_router(api_router, prefix=settings.api_v1_prefix)
 
-    @app.get("/health", tags=["system"])
-    async def health() -> dict[str, str]:
-        return {"status": "ok"}
-
-
-    @app.get("/test_groq", tags=["groq"])
-    async def test_groq():
-        try:
-            response = await groq_client.chat_completion(
-                messages=[
-                    GroqMessage(
-                        role="user",
-                        name="test-user",
-                        content="Hello, how are you? I am a test user.",
-                    )
-                ]
-            )
-        except GroqClientError as exc:
-            raise HTTPException(
-                status_code=exc.status_code or 502,
-                detail=exc.details or str(exc),
-            ) from exc
-
-        return {"response": response.choices[0].message.content}
-    
     return app
 
 
 app = create_app()
-
