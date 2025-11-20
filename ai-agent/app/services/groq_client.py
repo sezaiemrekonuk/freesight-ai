@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import AsyncIterator, Literal, Sequence
+from typing import Any, AsyncIterator, Literal, Sequence
 
 import httpx
 from pydantic import BaseModel, Field
@@ -206,5 +206,68 @@ class GroqClient:
             )
         payload = response.json()
         return model.model_validate(payload)
+
+    async def chat_with_prompt(
+        self,
+        variables: dict[str, Any],
+        prompt: str | type | None = None,
+        *,
+        options: GroqChatOptions | None = None,
+    ) -> GroqChatCompletion:
+        """
+        Send a chat completion using a prompt template (internal use only).
+
+        Args:
+            variables: Dictionary of variables to substitute in the prompt
+            prompt: Prompt name (string) or Prompt enum value. Defaults to Prompt.MAIN
+            options: Optional chat options (model will be overridden by prompt config)
+
+        Returns:
+            GroqChatCompletion response
+
+        Example:
+            ```python
+            from app.prompts import Prompt
+
+            # Using default MAIN prompt
+            response = await client.chat_with_prompt(
+                variables={"objectsInImage": "...", "isPanic": "true"}
+            )
+
+            # Using specific prompt
+            response = await client.chat_with_prompt(
+                variables={"objectsInImage": "..."},
+                prompt=Prompt.DESCRIBE
+            )
+            ```
+        """
+        from app.prompts import Prompt
+        from app.services.prompt_manager import get_prompt_manager
+
+        # Default to MAIN prompt if not provided
+        if prompt is None:
+            prompt = Prompt.MAIN
+
+        # Convert enum to string if needed
+        from enum import Enum
+
+        if isinstance(prompt, Enum):
+            prompt_name = prompt.value
+        elif hasattr(prompt, "__str__"):
+            prompt_name = str(prompt)
+        else:
+            prompt_name = prompt
+
+        # Get prompt manager and render prompt
+        prompt_manager = get_prompt_manager()
+        messages, model_name = prompt_manager.render_prompt(prompt_name, variables)
+
+        # Override model in options if not explicitly set
+        if options is None:
+            options = GroqChatOptions()
+        options.model = model_name
+
+        # Call regular chat_completion
+        return await self.chat_completion(messages=messages, options=options)
 
 

@@ -19,9 +19,10 @@ app/
 ├── models/                 # Pydantic models and schemas
 │   └── schemas.py         # Request/response models
 ├── services/              # External service clients
-│   └── groq_client.py     # Groq API client
-├── prompts/
-│   └── Main.prompt.yaml     # Main prompt file to use in loop
+│   ├── groq_client.py     # Groq API client
+│   └── prompt_manager.py  # Prompt parsing and management
+├── prompts/               # Prompt templates (YAML)
+│   ├── Main.prompt.yaml     # Main prompt file to use in loop
 │   └── Describe.prompt.yaml # Describer for the image features
 └── main.py                # Application entry point
 ```
@@ -86,6 +87,34 @@ curl -X POST "http://localhost:8000/api/v1/groq/chat/completions" \
 - ✅ **Dependency Injection**: Proper use of FastAPI's dependency injection system
 - ✅ **API Versioning**: Organized API structure with version support
 - ✅ **Authentication**: Bearer token authentication for protected endpoints
+- ✅ **Prompt System**: YAML-based prompt templates with variable substitution
 - ✅ **Lifecycle Management**: Proper startup/shutdown handling for resources
 - ✅ **Type Safety**: Full type hints and Pydantic models throughout
 - ✅ **Error Handling**: Comprehensive error handling with proper HTTP status codes
+
+### Prompt System
+
+The service includes a powerful prompt management system that allows you to:
+
+- Define prompts in YAML files
+- Use enums for type-safe prompt references
+- Substitute variables easily
+- Use prompts with a simple API
+
+**Example:**
+```python
+from app.services.groq_client import GroqClient
+from app.core.dependencies import get_groq_client
+
+groq_client = get_groq_client()
+
+# Default MAIN prompt (prompt parameter is optional)
+response = await groq_client.chat_with_prompt(
+    variables={
+        "objectsInImage": "Car ahead, Person on left",
+        "isPanic": "false"
+    }
+)
+```
+
+See [EXAMPLE_USAGE.md](EXAMPLE_USAGE.md) for more details.
