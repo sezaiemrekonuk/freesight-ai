@@ -1,0 +1,69 @@
+"""Kokoro TTS API endpoints."""
+
+from fastapi import APIRouter, Depends
+from fastapi.responses import Response
+
+from app.controllers.tts_controller import TTSController
+from app.core.dependencies import get_kokoro_client, verify_api_token
+from app.models.schemas import TTSRequest
+from app.services.tts_client import KokoroTTSClient
+
+router = APIRouter()
+
+
+def get_tts_controller(
+    tts_client: KokoroTTSClient = Depends(get_kokoro_client),
+) -> TTSController:
+    """Dependency to get TTSController instance."""
+    return TTSController(tts_client)
+
+
+def _media_type_for_format(response_format: str) -> str:
+    if response_format == "mp3":
+        return "audio/mpeg"
+    if response_format == "wav":
+        return "audio/wav"
+    if response_format == "pcm":
+        return "audio/raw"
+    return "application/octet-stream"
+
+
+@router.post(
+    "/speech",
+    summary="Text-to-speech synthesis",
+    response_class=Response,
+    dependencies=[Depends(verify_api_token)],
+)
+async def text_to_speech(
+    request: TTSRequest,
+    controller: TTSController = Depends(get_tts_controller),
+) -> Response:
+    """
+    Generate speech audio from text using Kokoro-FastAPI via OpenAI-compatible client.
+
+    Returns raw audio bytes with an appropriate audio Content-Type header.
+    """
+    audio_bytes = await controller.generate_speech(request)
+    media_type = _media_type_for_format(request.response_format)
+    return Response(content=audio_bytes, media_type=media_type)
+
+
+@router.get(
+    "/test",
+    summary="Test Kokoro TTS connection",
+    dependencies=[Depends(verify_api_token)],
+)
+async def test_tts(
+    controller: TTSController = Depends(get_tts_controller),
+) -> Response:
+    """
+    Test endpoint to verify Kokoro TTS is reachable.
+
+    Generates a short test phrase using default TTS settings.
+    """
+    request = TTSRequest(input="Hello from Kokoro TTS test endpoint.")
+    audio_bytes = await controller.generate_speech(request)
+    media_type = _media_type_for_format(request.response_format)
+    return Response(content=audio_bytes, media_type=media_type)
+
+

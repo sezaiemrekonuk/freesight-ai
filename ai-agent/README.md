@@ -80,6 +80,39 @@ curl -X POST "http://localhost:8000/api/v1/groq/chat/completions" \
   }'
 ```
 
+#### TTS Endpoints (Protected - Requires Bearer Token)
+
+- `POST /api/v1/tts/speech` - Generate speech audio from text
+- `GET /api/v1/tts/test` - Test Kokoro TTS connection
+
+**Environment:**
+
+Add the following Kokoro/OpenAI-compatible settings to your `.env`:
+
+```bash
+KOKORO_BASE_URL=http://localhost:8880
+KOKORO_API_KEY=kokoro-test-key
+KOKORO_TIMEOUT=30.0
+```
+
+`KOKORO_BASE_URL` should point to your running [Kokoro-FastAPI](https://github.com/remsky/Kokoro-FastAPI) instance (e.g. `http://localhost:8880` when running locally as described in the Kokoro-FastAPI README).
+
+**Example (curl) – text to speech:**
+
+```bash
+curl -X POST "http://localhost:8000/api/v1/tts/speech" \
+  -H "Authorization: Bearer your_api_token_here" \
+  -H "Content-Type: application/json" \
+  --output output.mp3 \
+  -d '{
+    "input": "Hello from the AI Agent TTS endpoint!",
+    "voice": "af_bella",
+    "response_format": "mp3"
+  }'
+```
+
+This endpoint uses the official OpenAI Python client configured to talk to Kokoro-FastAPI's OpenAI-compatible `/v1/audio/speech` API, as documented in [`remsky/Kokoro-FastAPI`](https://github.com/remsky/Kokoro-FastAPI).
+
 ### Features
 
 - ✅ **Structured Project Layout**: Follows FastAPI best practices with clear separation of concerns
