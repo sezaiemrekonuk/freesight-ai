@@ -7,6 +7,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from app.core.config import settings
 from app.services.groq_client import GroqClient
+from app.services.tts_client import KokoroTTSClient
 
 security = HTTPBearer()
 
@@ -18,6 +19,16 @@ def get_groq_client() -> GroqClient:
         api_key=settings.groq_api_key,
         base_url=settings.groq_base_url,
         timeout=settings.groq_timeout,
+    )
+
+
+@lru_cache
+def get_kokoro_client() -> KokoroTTSClient:
+    """Get or create a Kokoro TTS client instance (singleton)."""
+    return KokoroTTSClient(
+        base_url=settings.kokoro_base_url,
+        api_key=settings.kokoro_api_key,
+        timeout=settings.kokoro_timeout,
     )
 
 

@@ -14,10 +14,13 @@ async def lifespan(app: FastAPI):
     # Startup
     yield
     # Shutdown
-    from app.core.dependencies import get_groq_client
+    from app.core.dependencies import get_groq_client, get_kokoro_client
 
     groq_client = get_groq_client()
     await groq_client.aclose()
+
+    kokoro_client = get_kokoro_client()
+    await kokoro_client.aclose()
 
 
 def create_app() -> FastAPI:

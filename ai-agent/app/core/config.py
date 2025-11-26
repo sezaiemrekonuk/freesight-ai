@@ -31,6 +31,23 @@ class Settings(BaseSettings):
     )
     groq_timeout: float = Field(default=30.0, description="Groq API timeout in seconds")
 
+    # Kokoro TTS API
+    kokoro_base_url: str = Field(
+        default="http://localhost:8880",
+        description="Kokoro-FastAPI base URL (e.g. http://localhost:8880)",
+    )
+    kokoro_api_key: str = Field(
+        default="not-needed",
+        description=(
+            "API key for Kokoro/OpenAI-compatible TTS service. "
+            "Kokoro-FastAPI typically accepts any non-empty value."
+        ),
+    )
+    kokoro_timeout: float = Field(
+        default=30.0,
+        description="Kokoro TTS API timeout in seconds",
+    )
+
     model_config = SettingsConfigDict(
         env_file=Path(__file__).resolve().parents[2] / ".env",
         env_file_encoding="utf-8",
