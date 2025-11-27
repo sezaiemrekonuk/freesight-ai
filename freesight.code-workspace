@@ -1,8 +1,15 @@
 {
-	"folders": [
+    "folders": [
+		{
+			"path": "backend"
+		},
 		{
 			"path": "ai-agent"
 		}
 	],
-	"settings": {}
+    "settings": {
+        "conventionalCommits.scopes": [
+            "backend"
+        ]
+    }
 }
