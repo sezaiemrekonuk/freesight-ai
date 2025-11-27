@@ -116,8 +116,9 @@ class GroqClient:
         options: GroqChatOptions | None = None,
     ) -> GroqChatCompletion:
         """Send a chat completion request."""
+        # Exclude fields that are None so we don't send nullable fields like `name: null`
         payload = {
-            "messages": [message.model_dump() for message in messages],
+            "messages": [message.model_dump(exclude_none=True) for message in messages],
         }
 
         if options is None:
@@ -148,7 +149,7 @@ class GroqClient:
     ) -> AsyncIterator[GroqChatStreamChunk]:
         """Yield streaming chat completion chunks."""
         payload = {
-            "messages": [message.model_dump() for message in messages],
+            "messages": [message.model_dump(exclude_none=True) for message in messages],
         }
 
         if options is None:
