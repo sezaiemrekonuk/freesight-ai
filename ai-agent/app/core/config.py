@@ -48,6 +48,12 @@ class Settings(BaseSettings):
         description="Kokoro TTS API timeout in seconds",
     )
 
+    # ElevenLabs TTS API
+    elevenlabs_api_key: str | None = Field(
+        default=None,
+        description="ElevenLabs API key for TTS (ELEVENLABS_API_KEY).",
+    )
+
     model_config = SettingsConfigDict(
         env_file=Path(__file__).resolve().parents[2] / ".env",
         env_file_encoding="utf-8",

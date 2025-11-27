@@ -4,18 +4,20 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import Response
 
 from app.controllers.tts_controller import TTSController
-from app.core.dependencies import get_kokoro_client, verify_api_token
+from app.core.dependencies import get_eleven_client, get_kokoro_client, verify_api_token
 from app.models.schemas import TTSRequest
+from app.services.eleven_client import ElevenLabsTTSClient
 from app.services.tts_client import KokoroTTSClient
 
 router = APIRouter()
 
 
 def get_tts_controller(
-    tts_client: KokoroTTSClient = Depends(get_kokoro_client),
+    kokoro_client: KokoroTTSClient = Depends(get_kokoro_client),
+    eleven_client: ElevenLabsTTSClient | None = Depends(get_eleven_client),
 ) -> TTSController:
     """Dependency to get TTSController instance."""
-    return TTSController(tts_client)
+    return TTSController(kokoro_client=kokoro_client, eleven_client=eleven_client)
 
 
 def _media_type_for_format(response_format: str) -> str:
@@ -61,7 +63,7 @@ async def test_tts(
 
     Generates a short test phrase using default TTS settings.
     """
-    request = TTSRequest(input="Hello from Kokoro TTS test endpoint.")
+    request = TTSRequest(input="Hello from the TTS test endpoint.")
     audio_bytes = await controller.generate_speech(request)
     media_type = _media_type_for_format(request.response_format)
     return Response(content=audio_bytes, media_type=media_type)

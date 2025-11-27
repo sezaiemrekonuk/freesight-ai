@@ -5,6 +5,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, Field
 
 GroqRole = Literal["system", "user", "assistant", "tool"]
+TTSProvider = Literal["kokoro", "elevenlabs"]
 
 
 class ChatMessage(BaseModel):
@@ -51,11 +52,15 @@ class TTSNormalizationOptions(BaseModel):
 
 
 class TTSRequest(BaseModel):
-    """Text-to-speech request schema for Kokoro-FastAPI."""
+    """Text-to-speech request schema."""
 
+    provider: TTSProvider = Field(
+        default="kokoro",
+        description="TTS provider to use (kokoro or elevenlabs).",
+    )
     model: str = Field(
         default="kokoro",
-        description="Kokoro TTS model identifier.",
+        description="TTS model identifier (Kokoro or ElevenLabs model ID).",
     )
     input: str = Field(
         ...,
@@ -64,13 +69,16 @@ class TTSRequest(BaseModel):
     )
     voice: str = Field(
         default="af_bella",
-        description="Voice identifier supported by Kokoro-FastAPI (e.g. af_bella).",
+        description=(
+            "Voice identifier. For Kokoro, use voices like 'af_bella'. "
+            "For ElevenLabs, use the ElevenLabs voice_id."
+        ),
     )
     speed: float = Field(
         default=1.0,
         ge=0.5,
         le=2.0,
-        description="Playback speed multiplier.",
+        description="Playback speed multiplier (used by Kokoro; ignored by ElevenLabs).",
     )
     response_format: Literal["mp3", "wav", "pcm"] = Field(
         default="mp3",

@@ -8,6 +8,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from app.core.config import settings
 from app.services.groq_client import GroqClient
 from app.services.tts_client import KokoroTTSClient
+from app.services.eleven_client import ElevenLabsTTSClient
 
 security = HTTPBearer()
 
@@ -30,6 +31,14 @@ def get_kokoro_client() -> KokoroTTSClient:
         api_key=settings.kokoro_api_key,
         timeout=settings.kokoro_timeout,
     )
+
+
+@lru_cache
+def get_eleven_client() -> ElevenLabsTTSClient | None:
+    """Get or create an ElevenLabs TTS client instance (singleton), if configured."""
+    if not settings.elevenlabs_api_key:
+        return None
+    return ElevenLabsTTSClient(api_key=settings.elevenlabs_api_key)
 
 
 def verify_api_token(
