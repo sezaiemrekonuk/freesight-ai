@@ -53,6 +53,13 @@ class Settings(BaseSettings):
         default=None,
         description="ElevenLabs API key for TTS (ELEVENLABS_API_KEY).",
     )
+    elevenlabs_voice_id: str | None = Field(
+        default=None,
+        description=(
+            "Default ElevenLabs voice_id to use when not provided in TTS requests "
+            "(ELEVENLABS_VOICE_ID)."
+        ),
+    )
     elevenlabs_tts_model: str = Field(
         default="eleven_flash_v2_5",
         description=(

@@ -1,10 +1,11 @@
 """Kokoro TTS API endpoints."""
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import Response
 
 from app.controllers.tts_controller import TTSController
 from app.core.dependencies import get_eleven_client, get_kokoro_client, verify_api_token
+from app.core.config import settings
 from app.models.schemas import TTSRequest
 from app.services.eleven_client import ElevenLabsTTSClient
 from app.services.tts_client import KokoroTTSClient
@@ -45,6 +46,28 @@ async def text_to_speech(
 
     Returns raw audio bytes with an appropriate audio Content-Type header.
     """
+    # Fill in ElevenLabs-specific defaults from environment if not explicitly provided
+    if request.provider == "elevenlabs":
+        # Use configured default model if the client did not send one
+        if "model" not in request.model_fields_set:
+            request.model = settings.elevenlabs_tts_model
+
+        # Use configured default voice_id if the client did not send one
+        if "voice" not in request.model_fields_set:
+            if not settings.elevenlabs_voice_id:
+                raise HTTPException(
+                    status_code=500,
+                    detail=(
+                        "ElevenLabs default voice is not configured. "
+                        "Set ELEVENLABS_VOICE_ID or provide 'voice' in the request."
+                    ),
+                )
+            request.voice = settings.elevenlabs_voice_id
+
+    # Ensure a sensible default response format when omitted
+    if "response_format" not in request.model_fields_set:
+        request.response_format = "mp3"
+
     audio_bytes = await controller.generate_speech(request)
     media_type = _media_type_for_format(request.response_format)
     return Response(content=audio_bytes, media_type=media_type)
