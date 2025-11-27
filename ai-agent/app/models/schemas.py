@@ -55,12 +55,12 @@ class TTSRequest(BaseModel):
     """Text-to-speech request schema."""
 
     provider: TTSProvider = Field(
-        default="kokoro",
+        default="elevenlabs",
         description="TTS provider to use (kokoro or elevenlabs).",
     )
     model: str = Field(
-        default="kokoro",
-        description="TTS model identifier (Kokoro or ElevenLabs model ID).",
+        default="eleven_multilingual_v2",
+        description="TTS model identifier (Kokoro or ElevenLabs model ID). For ElevenLabs, use e.g. 'eleven_multilingual_v2'.",
     )
     input: str = Field(
         ...,

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Any
+from collections.abc import Iterable
 
 import anyio
 from elevenlabs import VoiceSettings
@@ -58,8 +59,18 @@ class ElevenLabsTTSClient:
                     details=str(exc),
                 ) from exc
 
+            # Newer ElevenLabs SDKs may return a generator/iterator of audio chunks
             if isinstance(audio, (bytes, bytearray)):
                 return bytes(audio)
+
+            if isinstance(audio, Iterable) and not isinstance(audio, (str, bytes, bytearray)):
+                try:
+                    return b"".join(chunk for chunk in audio if chunk)
+                except Exception as exc:
+                    raise ElevenLabsClientError(
+                        "Failed to consume ElevenLabs streaming response",
+                        details=str(exc),
+                    ) from exc
 
             raise ElevenLabsClientError(
                 "Unexpected response type from ElevenLabs TTS service",
