@@ -83,9 +83,10 @@ curl -X POST "http://localhost:8000/api/v1/groq/chat/completions" \
 #### TTS Endpoints (Protected - Requires Bearer Token)
 
 - `POST /api/v1/tts/speech` - Generate speech audio from text
-- `GET /api/v1/tts/test` - Test Kokoro TTS connection
+- `GET /api/v1/tts/test` - Test default TTS connection (Kokoro)
+- `GET /api/v1/tts/test-elevenlabs?voice=VOICE_ID` - Test ElevenLabs TTS connection for a specific voice
 
-**Environment:**
+**Environment (Kokoro):**
 
 Add the following Kokoro/OpenAI-compatible settings to your `.env`:
 
@@ -97,7 +98,7 @@ KOKORO_TIMEOUT=30.0
 
 `KOKORO_BASE_URL` should point to your running [Kokoro-FastAPI](https://github.com/remsky/Kokoro-FastAPI) instance (e.g. `http://localhost:8880` when running locally as described in the Kokoro-FastAPI README).
 
-**Example (curl) – text to speech:**
+**Example (curl – Kokoro) – text to speech:**
 
 ```bash
 curl -X POST "http://localhost:8000/api/v1/tts/speech" \
@@ -112,6 +113,40 @@ curl -X POST "http://localhost:8000/api/v1/tts/speech" \
 ```
 
 This endpoint uses the official OpenAI Python client configured to talk to Kokoro-FastAPI's OpenAI-compatible `/v1/audio/speech` API, as documented in [`remsky/Kokoro-FastAPI`](https://github.com/remsky/Kokoro-FastAPI).
+
+**Environment (ElevenLabs):**
+
+Add your ElevenLabs API key to the same `.env`:
+
+```bash
+ELEVENLABS_API_KEY=your_elevenlabs_api_key_here
+```
+
+**Example (curl – ElevenLabs) – text to speech:**
+
+```bash
+curl -X POST "http://localhost:8000/api/v1/tts/speech" \
+  -H "Authorization: Bearer your_api_token_here" \
+  -H "Content-Type: application/json" \
+  --output eleven_output.mp3 \
+  -d '{
+    "provider": "elevenlabs",
+    "model": "eleven_multilingual_v2",
+    "input": "Hello from ElevenLabs via the AI Agent TTS endpoint!",
+    "voice": "YOUR_ELEVENLABS_VOICE_ID",
+    "response_format": "mp3"
+  }'
+```
+
+**Example (curl – ElevenLabs test endpoint):**
+
+```bash
+curl -X GET "http://localhost:8000/api/v1/tts/test-elevenlabs?voice=YOUR_ELEVENLABS_VOICE_ID" \
+  -H "Authorization: Bearer your_api_token_here" \
+  --output eleven_test.mp3
+```
+
+For details on available ElevenLabs models and output formats, see the ElevenLabs docs, and for Kokoro’s OpenAI-compatible interface see [`remsky/Kokoro-FastAPI`](https://github.com/remsky/Kokoro-FastAPI), which describes how it exposes `/v1/audio/speech` in an OpenAI-compatible way.
 
 ### Features
 

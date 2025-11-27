@@ -52,18 +52,39 @@ async def text_to_speech(
 
 @router.get(
     "/test",
-    summary="Test Kokoro TTS connection",
+    summary="Test default TTS connection (Kokoro)",
     dependencies=[Depends(verify_api_token)],
 )
 async def test_tts(
     controller: TTSController = Depends(get_tts_controller),
 ) -> Response:
-    """
-    Test endpoint to verify Kokoro TTS is reachable.
-
-    Generates a short test phrase using default TTS settings.
-    """
+    """Test endpoint to verify the default TTS provider (Kokoro) is reachable."""
     request = TTSRequest(input="Hello from the TTS test endpoint.")
+    audio_bytes = await controller.generate_speech(request)
+    media_type = _media_type_for_format(request.response_format)
+    return Response(content=audio_bytes, media_type=media_type)
+
+
+@router.get(
+    "/test-elevenlabs",
+    summary="Test ElevenLabs TTS connection",
+    dependencies=[Depends(verify_api_token)],
+)
+async def test_elevenlabs_tts(
+    voice: str,
+    controller: TTSController = Depends(get_tts_controller),
+) -> Response:
+    """
+    Test endpoint to verify ElevenLabs TTS is reachable.
+
+    Requires ELEVENLABS_API_KEY to be configured and an ElevenLabs voice_id via the `voice` query parameter.
+    """
+    request = TTSRequest(
+        provider="elevenlabs",
+        model="eleven_multilingual_v2",
+        input="Hello from the ElevenLabs TTS test endpoint.",
+        voice=voice,
+    )
     audio_bytes = await controller.generate_speech(request)
     media_type = _media_type_for_format(request.response_format)
     return Response(content=audio_bytes, media_type=media_type)
