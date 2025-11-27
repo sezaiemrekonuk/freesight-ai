@@ -23,9 +23,16 @@ class ElevenLabsClientError(RuntimeError):
 class ElevenLabsTTSClient:
     """Lightweight ElevenLabs TTS client."""
 
-    def __init__(self, *, api_key: str, client: ElevenLabs | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        api_key: str,
+        default_model: str = "eleven_flash_v2_5",
+        client: ElevenLabs | None = None,
+    ) -> None:
         self._client = client or ElevenLabs(api_key=api_key)
         self._owns_client = client is None
+        self._default_model = default_model
 
     async def aclose(self) -> None:
         # ElevenLabs client does not need explicit closing.
@@ -49,7 +56,7 @@ class ElevenLabsTTSClient:
                 audio = self._client.text_to_speech.convert(
                     text=request.input,
                     voice_id=request.voice,
-                    model_id=request.model or "eleven_multilingual_v2",
+                    model_id=request.model or self._default_model,
                     voice_settings=VoiceSettings(stability=0.5, similarity_boost=0.75),
                     output_format=output_format,
                 )

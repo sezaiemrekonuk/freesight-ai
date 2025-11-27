@@ -59,8 +59,12 @@ class TTSRequest(BaseModel):
         description="TTS provider to use (kokoro or elevenlabs).",
     )
     model: str = Field(
-        default="eleven_multilingual_v2",
-        description="TTS model identifier (Kokoro or ElevenLabs model ID). For ElevenLabs, use e.g. 'eleven_multilingual_v2'.",
+        default="eleven_flash_v2_5",
+        description=(
+            "TTS model identifier (Kokoro or ElevenLabs model ID). "
+            "For ElevenLabs, defaults to the configured ELEVENLABS_TTS_MODEL "
+            "(e.g. 'eleven_flash_v2_5')."
+        ),
     )
     input: str = Field(
         ...,

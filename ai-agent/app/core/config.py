@@ -53,6 +53,13 @@ class Settings(BaseSettings):
         default=None,
         description="ElevenLabs API key for TTS (ELEVENLABS_API_KEY).",
     )
+    elevenlabs_tts_model: str = Field(
+        default="eleven_flash_v2_5",
+        description=(
+            "Default ElevenLabs TTS model ID "
+            "(e.g. 'eleven_flash_v2_5', configurable via ELEVENLABS_TTS_MODEL)."
+        ),
+    )
 
     model_config = SettingsConfigDict(
         env_file=Path(__file__).resolve().parents[2] / ".env",

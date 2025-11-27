@@ -38,7 +38,10 @@ def get_eleven_client() -> ElevenLabsTTSClient | None:
     """Get or create an ElevenLabs TTS client instance (singleton), if configured."""
     if not settings.elevenlabs_api_key:
         return None
-    return ElevenLabsTTSClient(api_key=settings.elevenlabs_api_key)
+    return ElevenLabsTTSClient(
+        api_key=settings.elevenlabs_api_key,
+        default_model=settings.elevenlabs_tts_model,
+    )
 
 
 def verify_api_token(
