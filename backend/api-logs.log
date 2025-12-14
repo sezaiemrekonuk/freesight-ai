@@ -1,0 +1,1 @@
+{"address":"127.0.0.1","code":"ECONNREFUSED","errno":-61,"level":"error","port":6379,"syscall":"connect","timestamp":"2025-11-27 17:34:30"}
