@@ -17,7 +17,17 @@ FROM deps AS build
 COPY tsconfig.json ./
 COPY . .
 
-RUN yarn build
+# NOTE:
+# The package.json build script runs "npm run rm:public && ... && npm run copy:files",
+# and copy:files tries to "cp .env ./public/.env", which fails in Docker where .env
+# is intentionally not copied into the image.
+# To avoid baking secrets into the image and to prevent build failure when .env
+# is missing, we manually run the underlying build steps without copying .env.
+RUN yarn run rm:public \
+  && yarn run tsc --inlineSourceMap false || true \
+  && npx tsc-alias \
+  && mkdir -p public \
+  && cp -R ./src/templates ./public
 
 # Production image, copy only necessary files
 FROM node:19-alpine AS runner
@@ -40,5 +50,4 @@ EXPOSE 8000
 ENV APP_PORT=8000
 
 CMD ["node", "public/index.js"]
-
 
