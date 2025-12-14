@@ -5,11 +5,24 @@
 		},
 		{
 			"path": "ai-agent"
+		},
+		{
+			"path": "frontend"
 		}
 	],
     "settings": {
         "conventionalCommits.scopes": [
-            "backend"
-        ]
+            "backend",
+			"ai-agent",
+			"frontend"
+        ],
+		"editor.formatOnSave": true,
+		"editor.codeActionsOnSave": {
+			"source.fixAll": "explicit",
+			"source.organizeImports": "explicit"
+		},
+		"editor.tabSize": 2,
+		"editor.insertSpaces": true,
+		"editor.detectIndentation": false
     }
 }
