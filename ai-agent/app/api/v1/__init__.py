@@ -2,13 +2,14 @@
 
 from fastapi import APIRouter
 
-from app.api.v1.routers import groq, system, tts
+from app.api.v1.routers import groq, system, tts, detection
 
 api_router = APIRouter()
 
 api_router.include_router(system.router, tags=["system"])
 api_router.include_router(groq.router, prefix="/groq", tags=["groq"])
 api_router.include_router(tts.router, prefix="/tts", tags=["tts"])
+api_router.include_router(detection.router, prefix="/vision", tags=["vision"])
 
 __all__ = ["api_router"]
 
