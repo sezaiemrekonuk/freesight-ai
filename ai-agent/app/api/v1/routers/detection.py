@@ -1,14 +1,17 @@
-from fastapi import APIRouter, File, UploadFile, HTTPException
+from fastapi import APIRouter, File, UploadFile, HTTPException, Depends
 from typing import List
 from app.services.detection_service import DetectionService
+from app.core.dependencies import verify_api_token
 
 router = APIRouter()
 detection_service = DetectionService()
 
-@router.post("/detect", response_model=List[dict])
+@router.post("/detect", response_model=List[dict], dependencies=[Depends(verify_api_token)])
 async def detect_objects(file: UploadFile = File(...)):
     """
     Detect objects in the uploaded image using the YOLO model.
+    
+    **Authentication:** Requires a Bearer token in the Authorization header.
     """
     if file.content_type not in ["image/jpeg", "image/png", "image/jpg"]:
         raise HTTPException(status_code=400, detail="Invalid image type. Please upload a JPEG or PNG.")
