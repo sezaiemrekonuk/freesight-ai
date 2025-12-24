@@ -17,17 +17,10 @@ FROM deps AS build
 COPY tsconfig.json ./
 COPY . .
 
-# NOTE:
-# The package.json build script runs "npm run rm:public && ... && npm run copy:files",
-# and copy:files tries to "cp .env ./public/.env", which fails in Docker where .env
-# is intentionally not copied into the image.
-# To avoid baking secrets into the image and to prevent build failure when .env
-# is missing, we manually run the underlying build steps without copying .env.
+# Build the demo version (no templates needed)
 RUN yarn run rm:public \
   && yarn run tsc --inlineSourceMap false || true \
-  && npx tsc-alias \
-  && mkdir -p public \
-  && cp -R ./src/templates ./public
+  && npx tsc-alias
 
 # Production image, copy only necessary files
 FROM node:19-alpine AS runner
@@ -40,14 +33,17 @@ ENV NODE_ENV=production
 COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile --production
 
-# Copy built files and other required assets
+# Copy built files
 COPY --from=build /usr/src/app/public ./public
 
-# Expose the application port (default from .env.example is 8000)
+# Expose the application port
 EXPOSE 8000
 
-# The app reads APP_PORT from the environment; default to 8000
+# Environment variables
 ENV APP_PORT=8000
+ENV AI_AGENT_URL=http://ai-agent:8001
+ENV AI_AGENT_TOKEN=demo-token
 
-CMD ["node", "public/index.js"]
+# Run the demo gateway
+CMD ["node", "public/index.demo.js"]
 

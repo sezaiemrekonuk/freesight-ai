@@ -24,8 +24,11 @@
   ],
   "scripts": {
     "start": "npm run rm:public && cross-env NODE_ENV=production ts-node --files -r tsconfig-paths/register ./src",
+    "start:demo": "cross-env NODE_ENV=production ts-node --files -r tsconfig-paths/register ./src/index.demo.ts",
     "watch": "npm run rm:public && cross-env ts-node-dev --files --respawn --inspect -r tsconfig-paths/register ./src",
+    "watch:demo": "cross-env ts-node-dev --files --respawn -r tsconfig-paths/register ./src/index.demo.ts",
     "build": "npm run rm:public && cross-env NODE_ENV=production tsc && tsc-alias && npm run copy:files",
+    "build:demo": "npm run rm:public && cross-env NODE_ENV=production tsc && tsc-alias",
     "rm:public": "rm -rf ./public",
     "copy:files": "cp .env ./public/.env && cp -R ./src/templates ./public",
     "seed": "ts-node --files -r tsconfig-paths/register ./src/seeds",

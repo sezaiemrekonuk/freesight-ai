@@ -3,6 +3,7 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1 import api_router
 from app.core.config import settings
@@ -36,6 +37,23 @@ def create_app() -> FastAPI:
         summary="Core API for the AI Agent service.",
         debug=settings.debug,
         lifespan=lifespan,
+    )
+
+    # Add CORS middleware for frontend access
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[
+            "http://localhost:3000",
+            "http://localhost:5173",
+            "http://127.0.0.1:3000",
+            "http://127.0.0.1:5173",
+            # Add production origins as needed
+            "*",  # Allow all origins for demo - restrict in production
+        ],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+        expose_headers=["*"],
     )
 
     # Include API routers
